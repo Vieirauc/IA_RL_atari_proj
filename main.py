@@ -5,7 +5,7 @@ env = gym.make("SpaceInvaders-v0", render_mode="human")
 height, width, channels = env.observation_space.shape
 actions = env.action_space.n
 
-print(env.env.get_action_meanings())
+print(env.get_action_meanings())
 print(env.action_space.n)
 
 episodes = 5
