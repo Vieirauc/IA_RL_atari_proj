@@ -1,6 +1,6 @@
 import gymnasium as gym
 import random
-from tensorflow.keras.optimizers import Adam
+from tf.keras.optimizers import Adam
 from model import build_model
 from agent import build_agent
 
