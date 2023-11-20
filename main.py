@@ -1,5 +1,8 @@
 import gymnasium as gym
 import random
+from tensorflow.keras.optimizers import Adam
+from model import build_model
+from agent import build_agent
 
 env = gym.make("SpaceInvaders-v0", render_mode="human")
 height, width, channels = env.observation_space.shape
@@ -7,6 +10,17 @@ actions = env.action_space.n
 
 print(env.get_action_meanings())
 print(env.action_space.n)
+
+model = build_model(height, width, channels, actions)
+model.summary()
+
+dqn = build_agent(model, actions)
+dqn.compile(Adam(lr=0.001), metrics=['mae']) 
+
+dqn.fit(env, nb_steps=10000, visualize=False, verbose=2)
+
+'''
+RANDOM SCENARIO
 
 episodes = 5
 for episode in range(1, episodes+1):
@@ -21,3 +35,4 @@ for episode in range(1, episodes+1):
         score+=reward
     print('Episode:{} Score:{}'.format(episode, score))
 env.close()
+''' 
