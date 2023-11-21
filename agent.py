@@ -14,7 +14,7 @@ class ReplayMemory:
         self.memory = []
         self.position = 0
         self.device = device
-        self.report = 0
+        self.memory_max_report = 0
 
     def insert(self, transition):
         transition = [item.to('cpu') for item in transition]
@@ -42,13 +42,13 @@ class ReplayMemory:
 
 class Agent:
     
-    def __int__(self, model, device='cpu', epsilon=1.0, min_epsilon=0.1, no_warmup=10000, nb_actions=None, memory_capacity=10000, batch_size=32, learning_rate=0.00025):
+    def __init__(self, model, device='cpu', epsilon=1.0, min_epsilon=0.1, nb_warmup=10000, nb_actions=None, memory_capacity=10000, batch_size=32, learning_rate=0.00025):
         self.memory = ReplayMemory(device=device, capacity=memory_capacity)
         self.model = model
         self.target_model = copy.deepcopy(model).eval()
         self.epsilon = epsilon
         self.min_epsilon = min_epsilon
-        self.epsilon_decay = 1 - (((epsilon - min_epsilon) / no_warmup) * 2)
+        self.epsilon_decay = 1 - (((epsilon - min_epsilon) / nb_warmup) * 2)
         self.batch_size = batch_size
         self.model.to(device)
         self.target_model.to(device)
@@ -89,7 +89,7 @@ class Agent:
                     qsa_b = self.model(state_b).gather(1, action_b)
                     next_qsa_b = self.target_model(next_state_b)
                     next_qsa_b = torch.max(next_qsa_b, dim=1, keepdim=True)[0]
-                    target_b = reward_b + done_b * self.gamma * next_qsa_b
+                    target_b = reward_b + ~done_b * self.gamma * next_qsa_b
                     loss = F.mse_loss(qsa_b, target_b)
                     self.model.zero_grad()
                     loss.backward()
@@ -100,19 +100,19 @@ class Agent:
 
             stats['Returns'].append(ep_return)
 
-            if epoch % 10:
+            if epoch % 10 == 0:
                 self.model.save_the_model()
                 print(" ")
 
-                average_returns = np.mean(stats['Returns'][-100])
+                average_returns = np.mean(stats['Returns'][-100:])
 
                 stats['AvgReturns'].append(average_returns)
                 stats['EpsilonCheckpoint'].append(self.epsilon)
 
                 if (len(stats['Returns'])) > 100:
-                    print(f"Epoch : {epoch} - Average Returns: {np.mean(stats['Returns'][-100])} - Epsilon: {self.epsilon}")
+                    print(f"Epoch : {epoch} - Average Returns: {np.mean(stats['Returns'][-100:])} - Epsilon: {self.epsilon}")
                 else:
-                    print(f"Epoch : {epoch} - Average Returns: {np.mean(stats['Returns'][-1])} - Epsilon: {self.epsilon}")
+                    print(f"Epoch : {epoch} - Average Returns: {np.mean(stats['Returns'][-1:])} - Epsilon: {self.epsilon}")
 
             if epoch % 100 == 0:
                 self.target_model.load_state_dict(self.model.state_dict())

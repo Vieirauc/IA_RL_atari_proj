@@ -39,7 +39,7 @@ class DQNBreakout(gym.Wrapper):
             if done:
                 break
 
-        max_frame = np.max(np.stack(self.frame_buffer), axis=0)
+        max_frame = np.max(self.frame_buffer[-2:], axis=0)
         max_frame = self.process_observation(max_frame)
         max_frame = max_frame.to(self.device)
 
