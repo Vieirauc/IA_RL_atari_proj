@@ -1,39 +1,25 @@
-import gymnasium as gym
-import random
-import tensorflow as tf
+import os
+from breakout import DQNBreakout
 
-from model import build_model
-from agent import build_agent
+import gym
+import numpy as np
+from PIL import Image
+import torch
 
-env = gym.make("SpaceInvaders-v0", render_mode="human")
-height, width, channels = env.observation_space.shape
-actions = env.action_space.n
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
-print(env.get_action_meanings())
-print(env.action_space.n)
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-model = build_model(height, width, channels, actions)
-model.summary()
+environment = DQNBreakout(device = device, render_mode='human')
 
-dqn = build_agent(model, actions)
-dqn.compile(tf.keras.optimizers.Adam(lr=1e-4), metrics=['mae'])
+state = environment.reset()
 
-dqn.fit(env, nb_steps=10000, visualize=False, verbose=2)
-
-'''
-RANDOM SCENARIO
-
-episodes = 5
-for episode in range(1, episodes+1):
-    state = env.reset()
+for i in range(10):
+    environment.reset()
     done = False
-    score = 0 
-    
     while not done:
-        env.render()
-        action = random.choice([0,1,2,3,4,5])
-        n_state, reward, done, info, prob = env.step(action)
-        score+=reward
-    print('Episode:{} Score:{}'.format(episode, score))
-env.close()
-''' 
+        action = environment.action_space.sample()
+        state, reward, done, info = environment.step(action)
+        environment.render()
+
+
