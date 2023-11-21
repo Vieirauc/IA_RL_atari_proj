@@ -100,6 +100,9 @@ class Agent:
 
             stats['Returns'].append(ep_return)
 
+            if self.epsilon > self.min_epsilon:
+                self.epsilon = self.epsilon * self.epsilon_decay
+
             if epoch % 10 == 0:
                 self.model.save_the_model()
                 print(" ")
@@ -114,9 +117,9 @@ class Agent:
                 else:
                     print(f"Epoch : {epoch} - Average Returns: {np.mean(stats['Returns'][-1:])} - Epsilon: {self.epsilon}")
 
-            if epoch % 100 == 0:
-                self.target_model.load_state_dict(self.model.state_dict())
-                plotter.update_plot(stats)
+            #if epoch % 100 == 0:
+                #self.target_model.load_state_dict(self.model.state_dict())
+                #plotter.update_plot(stats)
 
             if epoch % 1000 == 0:
                 self.model.save_the_model(f"models/model_iter_{epoch}.pt")
@@ -126,7 +129,7 @@ class Agent:
     def test(self, env):
 
         for epoch in range(1, 3):
-            state = env = env.reset()
+            state = env.reset()
 
             done = False
 
@@ -134,3 +137,6 @@ class Agent:
                 time.sleep(0.01)
                 action = self.get_action(state)
                 state, reward, done, info = env.step(action)
+                #print(f"{action}, {reward}, {done}, {info['lives']}")
+                if done:
+                    break
