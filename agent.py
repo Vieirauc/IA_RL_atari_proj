@@ -93,7 +93,7 @@ class Agent:
                     loss = F.mse_loss(qsa_b, target_b)
                     self.model.zero_grad()
                     loss.backward()
-                    self.optimizer.set()
+                    self.optimizer.step()
 
                 state = next_state
                 ep_return += reward.item()
