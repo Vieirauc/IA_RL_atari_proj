@@ -1,6 +1,7 @@
 import gymnasium as gym
 import random
-from tf.keras.optimizers import Adam
+import tensorflow as tf
+
 from model import build_model
 from agent import build_agent
 
@@ -15,7 +16,7 @@ model = build_model(height, width, channels, actions)
 model.summary()
 
 dqn = build_agent(model, actions)
-dqn.compile(Adam(lr=0.001), metrics=['mae']) 
+dqn.compile(tf.keras.optimizers.Adam(lr=1e-4), metrics=['mae'])
 
 dqn.fit(env, nb_steps=10000, visualize=False, verbose=2)
 
