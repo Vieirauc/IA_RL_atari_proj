@@ -20,11 +20,11 @@ model = AtariNet(nb_actions=4)
 
 model.to(device)
 
-model.load_the_model(weights_filename='models/model_iter_1000.pt')
+model.load_the_model(weights_filename='models/model_iter_3000.pt')
 
 agent = Agent(model=model,
               device=device,
-              epsilon=0,
+              epsilon=0.05,
               nb_warmup=5000,
               nb_actions=4,
               learning_rate=0.00001,
