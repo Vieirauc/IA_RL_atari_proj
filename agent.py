@@ -117,9 +117,9 @@ class Agent:
                 else:
                     print(f"Epoch : {epoch} - Average Returns: {np.mean(stats['Returns'][-1:])} - Epsilon: {self.epsilon}")
 
-            #if epoch % 100 == 0:
-                #self.target_model.load_state_dict(self.model.state_dict())
-                #plotter.update_plot(stats)
+            if epoch % 100 == 0:
+                self.target_model.load_state_dict(self.model.state_dict())
+                plotter.update_plot(stats)
 
             if epoch % 1000 == 0:
                 self.model.save_the_model(f"models/model_iter_{epoch}.pt")
