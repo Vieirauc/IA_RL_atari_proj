@@ -13,7 +13,7 @@ class DQNBreakout(gym.Wrapper):
         super(DQNBreakout, self).__init__(env)
 
         self.image_shape = (84, 84)
-        self.frame_buffer = collections.deque(maxlen=repeat)
+        self.frame_buffer = []
         self.repeat = repeat
         self.device = device
         self.lives = env.ale.lives()
@@ -25,7 +25,7 @@ class DQNBreakout(gym.Wrapper):
         done = False
 
         for i in range(self.repeat):
-            obs, reward, done, truncated, info = self.env.step(action)
+            observation, reward, done, truncated, info = self.env.step(action)
             total_reward += reward
 
             current_lives = info['lives']
@@ -34,7 +34,7 @@ class DQNBreakout(gym.Wrapper):
                 total_reward = total_reward - 1
                 self.lives = current_lives
 
-            self.frame_buffer.append(obs)
+            self.frame_buffer.append(observation)
 
             if done:
                 break
@@ -55,18 +55,18 @@ class DQNBreakout(gym.Wrapper):
     def reset(self):
         self.frame_buffer = []
 
-        obs, _ = self.env.reset()
+        observation, _ = self.env.reset()
 
         self.lives = self.env.ale.lives()
 
-        obs = self.process_observation(obs)
+        observation = self.process_observation(observation)
 
-        return obs 
+        return observation
 
 
-    def process_observation(self, obs):
+    def process_observation(self, observation):
         
-        img = Image.fromarray(obs)
+        img = Image.fromarray(observation)
         img = img.resize(self.image_shape)
         img = img.convert("L")
         img = np.array(img)

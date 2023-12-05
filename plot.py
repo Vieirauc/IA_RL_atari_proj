@@ -32,6 +32,6 @@ class LivePlot():
         if not os.path.exists("plots"):
             os.makedirs("plots")    
 
-        current_date = datetime.now().strftime("$Y-%m-%d")
+        current_date = datetime.now().strftime("%Y-%m-%d")
 
         self.fig.savefig(f"plots/plot_{current_date}.png")

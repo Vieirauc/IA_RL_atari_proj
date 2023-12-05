@@ -20,17 +20,17 @@ model = AtariNet(nb_actions=4)
 
 model.to(device)
 
-model.load_the_model(weights_filename='models/model_iter_3000.pt')
+model.load_the_model()
 
 agent = Agent(model=model,
               device=device,
-              epsilon=0.8,
+              epsilon=1.0,
               nb_warmup=5000,
               nb_actions=4,
-              learning_rate=0.00001,
-              memory_capacity=1000000,
+              learning_rate=0.001,
+              memory_capacity=100000,
               batch_size=64)
 
-agent.train(env=environment, epochs=7000)
+agent.train(env=environment, epochs=10000)
 
 

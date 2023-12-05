@@ -9,7 +9,7 @@ import numpy as np
 
 class ReplayMemory:
 
-    def __init__(self, capacity, device='cpu'):
+    def __init__(self, capacity, device = 'cpu'):
         self.capacity = capacity
         self.memory = []
         self.position = 0
@@ -29,9 +29,14 @@ class ReplayMemory:
         assert self.can_sample(batch_size)
 
         batch = random.sample(self.memory, batch_size)
-        batch = zip(*batch)
 
-        return [torch.cat(items).to(self.device) for items in batch]
+        state_b = torch.cat([transition[0] for transition in batch]).to(self.device)
+        action_b = torch.cat([transition[1] for transition in batch]).to(self.device)
+        reward_b = torch.cat([transition[2] for transition in batch]).to(self.device)
+        done_b = torch.cat([transition[3] for transition in batch]).to(self.device)
+        next_state_b = torch.cat([transition[4] for transition in batch]).to(self.device)
+
+        return state_b, action_b, reward_b, done_b, next_state_b
     
     def can_sample(self, batch_size):
         return len(self.memory) >= batch_size * 10
@@ -68,11 +73,22 @@ class Agent:
             return torch.argmax(av, dim=1, keepdim=True)
         
     def train(self, env, epochs):
-        stats = {'Returns': [], 'AvgReturns': [], 'EpsilonCheckpoint': []}
+
+        #Check if theres a stats file, if so, load it, if not, create it
+        try:
+            stats = np.load("models/stats.npy", allow_pickle=True).item()
+            print("Loaded stats file")
+        except:
+            print("No stats file found, creating new stats file")
+            stats = {'Returns': [], 'AvgReturns': [], 'EpsilonCheckpoint': [], 'EpochCheckpoint': 0}
+            np.save("models/stats.npy", stats)
+
 
         plotter = LivePlot()
 
-        for epoch in range(1, epochs + 1):
+        last_epoch = stats['EpochCheckpoint']
+
+        for epoch in range(last_epoch + 1, epochs + 1): 
             state = env.reset()
             done = False
             ep_return = 0
@@ -111,6 +127,9 @@ class Agent:
 
                 stats['AvgReturns'].append(average_returns)
                 stats['EpsilonCheckpoint'].append(self.epsilon)
+                stats['EpochCheckpoint'] = epoch
+                np.save("models/stats.npy", stats)
+
 
                 if (len(stats['Returns'])) > 100:
                     print(f"Epoch : {epoch} - Average Returns: {np.mean(stats['Returns'][-100:])} - Epsilon: {self.epsilon}")
@@ -124,19 +143,40 @@ class Agent:
             if epoch % 1000 == 0:
                 self.model.save_the_model(f"models/model_iter_{epoch}.pt")
 
+
         return stats
     
     def test(self, env):
 
-        for epoch in range(1, 3):
+        #plot the average returns of the trained model over 100 episodes
+
+        stats = {'Returns': [], 'AvgReturns': [], 'EpsilonCheckpoint': []}
+
+        plotter = LivePlot()
+
+        for epoch in range(1, 100):
             state = env.reset()
 
             done = False
+            ep_return = 0
 
             for _ in range(1000):
                 time.sleep(0.01)
                 action = self.get_action(state)
+
                 state, reward, done, info = env.step(action)
+                ep_return += reward.item()
+
                 #print(f"{action}, {reward}, {done}, {info['lives']}")
                 if done:
                     break
+
+            stats['Returns'].append(ep_return)
+            if epoch % 10 == 0:
+                print(f"Epoch : {epoch} | Average Returns: {np.mean(stats['Returns'][-100:])} | Epsilon: {self.epsilon}")
+                stats['AvgReturns'].append(np.mean(stats['Returns'][-100:]))
+                stats['EpsilonCheckpoint'].append(self.epsilon)
+                plotter.update_plot(stats)
+
+        return stats
+    
