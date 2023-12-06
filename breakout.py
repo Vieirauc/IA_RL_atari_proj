@@ -68,12 +68,12 @@ class DQNBreakout(gym.Wrapper):
         
         img = Image.fromarray(observation)
         img = img.resize(self.image_shape)
-        img = img.convert("L")
+        img = img.convert("L") #convert to grayscale
         img = np.array(img)
         img = torch.from_numpy(img)
         img = img.unsqueeze(0)
-        img = img.unsqueeze(0)
-        img = img / 255.0
+        img = img.unsqueeze(0) #add second dimension
+        img = img / 255.0 #normalize
 
         img = img.to(self.device)
 

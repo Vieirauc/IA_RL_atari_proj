@@ -27,8 +27,8 @@ agent = Agent(model=model,
               epsilon=1.0,
               nb_warmup=5000,
               nb_actions=4,
-              learning_rate=0.001,
-              memory_capacity=100000,
+              learning_rate=0.01,
+              memory_capacity=1000000,
               batch_size=64)
 
 agent.train(env=environment, epochs=10000)
