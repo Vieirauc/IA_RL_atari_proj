@@ -9,7 +9,7 @@ import numpy as np
 
 class ReplayMemory:
 
-    def __init__(self, capacity, device = 'cpu'):
+    def __init__(self, capacity=10000, device = 'cpu'):
         self.capacity = capacity
         self.memory = []
         self.position = 0
@@ -29,14 +29,8 @@ class ReplayMemory:
         assert self.can_sample(batch_size)
 
         batch = random.sample(self.memory, batch_size)
-
-        state_b = torch.cat([transition[0] for transition in batch]).to(self.device)
-        action_b = torch.cat([transition[1] for transition in batch]).to(self.device)
-        reward_b = torch.cat([transition[2] for transition in batch]).to(self.device)
-        done_b = torch.cat([transition[3] for transition in batch]).to(self.device)
-        next_state_b = torch.cat([transition[4] for transition in batch]).to(self.device)
-
-        return state_b, action_b, reward_b, done_b, next_state_b
+        batch = zip(*batch)
+        return [torch.cat(items).to(self.device) for items in batch]
     
     def can_sample(self, batch_size):
         return len(self.memory) >= batch_size * 10
@@ -70,7 +64,7 @@ class Agent:
             return torch.randint(self.nb_actions, (1, 1))
         else:
             av = self.model(state).detach()
-            return torch.argmax(av, dim=1, keepdim=True)
+            return torch.argmax(av, dim=-1, keepdim=True)
         
     def train(self, env, epochs):
 

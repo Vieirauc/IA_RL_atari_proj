@@ -7,13 +7,15 @@ import torch
 
 class DQNBreakout(gym.Wrapper):
 
-    def __init__(self, render_mode='rgb_array', repeat = 4, device = 'cpu'):
+    def __init__(self, render_mode='rgb_array', repeat = 4, device = 'cpu', no_ops = 0, fire_first = False):
         env = gym.make('BreakoutNoFrameskip-v4', render_mode=render_mode)
         
         super(DQNBreakout, self).__init__(env)
 
         self.image_shape = (84, 84)
         self.frame_buffer = []
+        self.no_ops = 0
+        self.fire_first = fire_first
         self.repeat = repeat
         self.device = device
         self.lives = env.ale.lives()

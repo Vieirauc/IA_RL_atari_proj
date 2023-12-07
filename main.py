@@ -25,10 +25,10 @@ model.load_the_model()
 agent = Agent(model=model,
               device=device,
               epsilon=1.0,
-              nb_warmup=5000,
+              nb_warmup=1000,
               nb_actions=4,
-              learning_rate=0.01,
-              memory_capacity=1000000,
+              learning_rate=0.0001,
+              memory_capacity=100000,
               batch_size=64)
 
 agent.train(env=environment, epochs=10000)
