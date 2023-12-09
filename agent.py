@@ -25,7 +25,7 @@ class ReplayMemory:
             self.memory.remove(self.memory[0])
             self.memory.append(transition)
 
-    def sample(self, batch_size=32):
+    def sample(self, batch_size):
         assert self.can_sample(batch_size)
 
         batch = random.sample(self.memory, batch_size)
@@ -98,7 +98,7 @@ class Agent:
                     state_b, action_b, reward_b, done_b, next_state_b = self.memory.sample(self.batch_size)
                     qsa_b = self.model(state_b).gather(1, action_b)
                     next_qsa_b = self.target_model(next_state_b)
-                    next_qsa_b = torch.max(next_qsa_b, dim=1, keepdim=True)[0]
+                    next_qsa_b = torch.max(next_qsa_b, dim=-1, keepdim=True)[0]
                     target_b = reward_b + ~done_b * self.gamma * next_qsa_b
                     loss = F.mse_loss(qsa_b, target_b)
                     self.model.zero_grad()

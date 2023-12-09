@@ -8,26 +8,25 @@ import torch
 from model import AtariNet
 from agent import Agent
 
-os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-print(device)
 
 environment = DQNBreakout(device = device)
 
 model = AtariNet(nb_actions=4)
 
-model.to(device)
+#model.to(device)
 
 model.load_the_model()
 
 agent = Agent(model=model,
               device=device,
               epsilon=1.0,
-              nb_warmup=1000,
+              min_epsilon=0.1,
+              nb_warmup=5000,
               nb_actions=4,
-              learning_rate=0.0001,
+              learning_rate=0.001,
               memory_capacity=100000,
               batch_size=64)
 
