@@ -1,57 +1,32 @@
 import torch
 import torch.nn as nn
-
+import torch.nn.functional as F
 
 class AtariNet(nn.Module):
-
     def __init__(self, nb_actions=4):
-
         super(AtariNet, self).__init__()
 
-        self.relu = nn.ReLU()
+        # Convolutional layers
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=8, stride=4)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=4, stride=2)
+        self.conv3 = nn.Conv2d(64, 64, kernel_size=3, stride=1)
 
-        self.conv1 = nn.Conv2d(1, 32, kernel_size=(8, 8), stride=(4, 4))
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=(4, 4), stride=(2, 2))
-        self.conv3 = nn.Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1))
-
-        self.flatten = nn.Flatten()
-
-        self.dropout = nn.Dropout(p=0.2)
-
-        self.action_value1 = nn.Linear(3136, 1024)
-
-        self.action_value2 = nn.Linear(1024, 1024)
-
-        self.action_value3 = nn.Linear(1024, nb_actions)
-
-        self.state_value1 = nn.Linear(3136, 1024)
-
-        self.state_value2 = nn.Linear(1024, 1024)
-
-        self.state_value3 = nn.Linear(1024, 1)
-
+        # Fully connected layers
+        self.fc1 = nn.Linear(self.feature_size(), 512)
+        self.fc2 = nn.Linear(512, nb_actions)
 
     def forward(self, x):
-        x = torch.Tensor(x)
-        x = self.relu(self.conv1(x))
-        x = self.relu(self.conv2(x))
-        x = self.relu(self.conv3(x))
-        x = self.flatten(x)
-        state_value = self.relu(self.state_value1(x))
-        state_value = self.dropout(state_value)
-        state_value = self.relu(self.state_value2(state_value))
-        state_value = self.dropout(state_value)
-        state_value = self.relu(self.state_value3(state_value))
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = F.relu(self.conv3(x))
 
-        action_value = self.relu(self.action_value1(x))
-        action_value = self.dropout(action_value)
-        action_value = self.relu(self.action_value2(action_value))
-        action_value = self.dropout(action_value)
-        action_value = self.relu(self.action_value3(action_value))
+        x = x.view(x.size(0), -1) # Flatten
+        x = F.relu(self.fc1(x))
 
-        output = state_value + (action_value - action_value.mean())
+        return self.fc2(x)
 
-        return output
+    def feature_size(self):
+        return self.conv3(self.conv2(self.conv1(torch.zeros(1, 1, 84, 84)))).view(1, -1).size(1)
 
     def save_the_model(self, weights_filename='models/latest.pt'):
         # Take the default weights filename(latest.pt) and save it
