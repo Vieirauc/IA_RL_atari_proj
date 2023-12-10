@@ -59,4 +59,3 @@ For the training section of the project, we can find the _main.py_ file that hol
 - [Pytorch 2](https://github.com/pytorch/pytorch)
 - [Human level control DRL](https://doi.org/10.1038/nature14236)
 - [Distributed prioritized](https://arxiv.org/abs/1803.00933)
-- 
