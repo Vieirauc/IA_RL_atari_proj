@@ -16,7 +16,7 @@ This guide provides step-by-step instructions on how to install the necessary sy
 
 **Step 3**:
 - Install Pytorch. 
-- Following the link: [PyTorch](https://pytorch.org/) and scrolling down to the table that shows the installation guide, we can see the multiple parameters that PyTorch can be installed with, in our case (windows 11), the command that is generated is `pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121`. We recommend that you use the same command to avoid mismatches in code versions. 
+- Following the link: [PyTorch](https://pytorch.org/) and scrolling down to the table that shows the installation guide, we can see the multiple parameters that PyTorch can be installed with, in our case (windows 11), the command that is generated is `pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121`. We recommend that you use the same command to avoid mismatches in code versions.
 - To test if Pytorch was successfully installed, run Python and execute the `import torch` command. 
 - As for Cuda support, run `torch.cuda.is_available()` as well as the `torch.cuda.get_device_name(0)` verifying that cuda has your GPU.
 
@@ -30,17 +30,33 @@ This guide provides step-by-step instructions on how to install the necessary sy
 
 **Step 6**:
 To visualize the agent learning to play the game, run the _test.py_ file with the following parameters:
+
 agent = Agent(model=model,
               device=device,
               epsilon=0.05,
               nb_warmup=1000,
               nb_actions=4,
-              learning_rate=0.01,
               memory_capacity=1000000,
               batch_size=64)
 
-To test the different influence that the hyperparameters have on the agents learning, you can alter the epsilon(maintain the values between 0.01 and 0.1), nb_warmup(can vary between 1000 and 4000) and the learning_rate(vary between 0.01 and 0.0001).
+To test the different influence that the hyperparameters have on the agents learning, you can alter the epsilon(maintain the values between 0.01 and 0.1), and nb_warmup(can vary between 1000 and 4000).
 
 
 ## Training
+**Note**: All the input data is generated within our project's environment.
 
+For the training section of the project, we can find the _main.py_ file that holds the project's core. From there we can load a model from the _model.py_ file where the neural network architecture, AtariNet and Pytorch nn module are defines. If there is a _latest.pt_ file available to load, the agent will continue the project from that point, otherwise it generates a new one and saves the information that is generated along the run. The plots are generated on _plot.py_ file while the agent is learning, providing the user with a visualization of the information that is being retrieved(epsilon and epochs).
+
+## References
+- [Gymnasium](https://gymnasium.farama.org/environments/atari/)
+- [Dueling deep Q Network](https://markelsanz14.medium.com/introduction-to-reinforcement-learning-part-4-double-dqn-and-dueling-dqn-b349c9a61ea1)
+- [Playing Atari with Deep Reinforcement Learning](https://arxiv.org/abs/1312.5602)
+- [Prioritized Experience Replay](https://arxiv.org/abs/1511.05952)
+- [Double DQN and Dueling DQN](https://markelsanz14.medium.com/introduction-to-reinforcement-learning-part-4-double-dqn-and-dueling-dqn-b349c9a61ea1)
+- [Breakout_1](https://en.wikipedia.org/wiki/Breakout\_(video\_game))
+- [Breakout 2](https://ultimatepopculture.fandom.com/wiki/Breakout\_(video\_game))
+- [Pytorch 1](https://www.nvidia.com/en-us/glossary/data-science/pytorch/)
+- [Pytorch 2](https://github.com/pytorch/pytorch)
+- [Human level control DRL](https://doi.org/10.1038/nature14236)
+- [Distributed prioritized](https://arxiv.org/abs/1803.00933)
+- 
