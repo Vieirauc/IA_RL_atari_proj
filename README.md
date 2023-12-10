@@ -45,6 +45,8 @@ agent = Agent(model=model,
 
 To test the different influence that the hyperparameters have on the agents learning, you can alter the epsilon(maintain the values between 0.01 and 0.1), and nb_warmup(can vary between 1000 and 4000).
 
+Note: We recommend to test out best model that can be found here: models\pastmodels\simple_lr0001_mc100000_warm5000\model_iter_8000.pt
+
 
 ## Training
 **Note**: All the input data is generated within our project's environment.
