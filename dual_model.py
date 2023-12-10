@@ -35,7 +35,6 @@ class AtariNet(nn.Module):
 
         # Combine streams
         q = val + (adv - adv.mean(dim=1, keepdim=True))
-        
         return q
 
     def feature_size(self):
