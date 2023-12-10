@@ -1,5 +1,5 @@
-Exploring Deep Q Learning Dynamics in Atari Breakout:
-A Comparative Analysis of Architectural Approaches
+**Exploring Deep Q Learning Dynamics in Atari Breakout:
+A Comparative Analysis of Architectural Approaches**
 
 This guide provides step-by-step instructions on how to install the necessary systems, as well as the recreation of the experiments performed by our group.
 
