@@ -26,7 +26,7 @@ agent = Agent(model=model,
               min_epsilon=0.1,
               nb_warmup=5000,
               nb_actions=4,
-              learning_rate=0.001,
+              learning_rate=0.0001,
               memory_capacity=100000,
               batch_size=64)
 
