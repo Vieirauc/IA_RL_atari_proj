@@ -5,7 +5,8 @@ import gym
 import numpy as np
 from PIL import Image
 import torch
-from model import AtariNet
+#from model import AtariNet
+from dual_model import AtariNet
 from agent import Agent
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'

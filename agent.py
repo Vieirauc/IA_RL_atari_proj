@@ -11,29 +11,28 @@ class ReplayMemory:
 
     def __init__(self, capacity=10000, device = 'cpu'):
         self.capacity = capacity
-        self.memory = []
+        self.memory = [None] * capacity  # Preallocate memory
         self.position = 0
         self.device = device
         self.memory_max_report = 0
+        self.length = 0
 
     def insert(self, transition):
         transition = [item.to('cpu') for item in transition]
-
-        if len(self.memory) < self.capacity:
-            self.memory.append(transition)
-        else:
-            self.memory.remove(self.memory[0])
-            self.memory.append(transition)
+        self.memory[self.position] = transition
+        self.position = (self.position + 1) % self.capacity  # Circular buffer - New improvment
+        if self.length < self.capacity:
+            self.length += 1
 
     def sample(self, batch_size):
         assert self.can_sample(batch_size)
-
-        batch = random.sample(self.memory, batch_size)
+        valid_memory = [transition for transition in self.memory if transition is not None]
+        batch = random.sample(valid_memory, batch_size)
         batch = zip(*batch)
         return [torch.cat(items).to(self.device) for items in batch]
     
     def can_sample(self, batch_size):
-        return len(self.memory) >= batch_size * 10
+        return self.length >= batch_size
     
     def __len__(self):
         return len(self.memory)
@@ -53,7 +52,6 @@ class Agent:
         self.target_model.to(device)
         self.gamma = 0.99
         self.nb_actions = nb_actions
-
         self.optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
 
         print(f"Starting epsilon is {self.epsilon}")
@@ -103,6 +101,7 @@ class Agent:
                     loss = F.mse_loss(qsa_b, target_b)
                     self.model.zero_grad()
                     loss.backward()
+                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1) #Clipping the gradient - New improvement
                     self.optimizer.step()
 
                 state = next_state
@@ -144,11 +143,11 @@ class Agent:
 
         #plot the average returns of the trained model over 100 episodes
 
-        stats = {'Returns': [], 'AvgReturns': [], 'EpsilonCheckpoint': []}
+        #stats = {'Returns': [], 'AvgReturns': [], 'EpsilonCheckpoint': []}
 
-        plotter = LivePlot()
+        #plotter = LivePlot()
 
-        for epoch in range(1, 100):
+        for epoch in range(1, 3):
             state = env.reset()
 
             done = False
@@ -161,16 +160,13 @@ class Agent:
                 state, reward, done, info = env.step(action)
                 ep_return += reward.item()
 
-                #print(f"{action}, {reward}, {done}, {info['lives']}")
                 if done:
                     break
 
-            stats['Returns'].append(ep_return)
-            if epoch % 10 == 0:
+            #stats['Returns'].append(ep_return)
+            '''if epoch % 10 == 0:
                 print(f"Epoch : {epoch} | Average Returns: {np.mean(stats['Returns'][-100:])} | Epsilon: {self.epsilon}")
                 stats['AvgReturns'].append(np.mean(stats['Returns'][-100:]))
                 stats['EpsilonCheckpoint'].append(self.epsilon)
-                plotter.update_plot(stats)
+                plotter.update_plot(stats)'''
 
-        return stats
-    
