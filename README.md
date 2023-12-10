@@ -29,16 +29,7 @@ This guide provides step-by-step instructions on how to install the necessary sy
 - Once all the files are in a workspace, run `pip install -r requirements.txt` to make sure all the dependencies are correctly installed on your machine.
 
 **Step 6**:
-To visualize the agent learning to play the game, run the _test.py_ file with the following parameters:
-
-agent = Agent(model=model,
-              device=device,
-              epsilon=0.05,
-              nb_warmup=1000,
-              nb_actions=4,
-              memory_capacity=1000000,
-              batch_size=64)
-
+To visualize the agent learning to play the game, run the _test.py_ file.
 To test the different influence that the hyperparameters have on the agents learning, you can alter the epsilon(maintain the values between 0.01 and 0.1), and nb_warmup(can vary between 1000 and 4000).
 
 
@@ -47,6 +38,18 @@ To test the different influence that the hyperparameters have on the agents lear
 
 For the training section of the project, we can find the _main.py_ file that holds the project's core. From there we can load a model from the _model.py_ file where the neural network architecture, AtariNet and Pytorch nn module are defines. If there is a _latest.pt_ file available to load, the agent will continue the project from that point, otherwise it generates a new one and saves the information that is generated along the run. The plots are generated on _plot.py_ file while the agent is learning, providing the user with a visualization of the information that is being retrieved(epsilon and epochs).
 
+The hyperparameters that we used to train the agent are ther following:
+
+agent = Agent(model=model,
+              device=device,
+              epsilon=1.0,
+              min_epsilon=0.1,
+              nb_warmup=5000,
+              nb_actions=4,
+              learning_rate=0.01,
+              memory_capacity=100000,
+              batch_size=64)
+              
 ## References
 - [Gymnasium](https://gymnasium.farama.org/environments/atari/)
 - [Dueling deep Q Network](https://markelsanz14.medium.com/introduction-to-reinforcement-learning-part-4-double-dqn-and-dueling-dqn-b349c9a61ea1)
